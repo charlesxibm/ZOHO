@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.header-bg{
+    background-image: url("https://res-console.cloudinary.com/dezf4umg2/thumbnails/transform/v1/image/upload/Y19maWxsLGhfMjAwLHdfMjAw/v1/aGVhZGVyLWJnX2t6bXNiNw==/template_primary");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
