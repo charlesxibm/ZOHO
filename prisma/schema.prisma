@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Item {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  warehouseId String @db.ObjectId
+  title        String
+  description  String
+  category     Category @relation(fields: [categoryId], references: [id])
+  categoryId   String   @db.ObjectId
+  sku          String   @unique
+  barcode      String?
+  quantity     Int
+  unit         Unit     @relation(fields: [unitId], references: [id])
+  unitId       String   @db.ObjectId
+  brand        Brand    @relation(fields: [brandId], references: [id])
+  brandId      String   @db.ObjectId
+  sellingPrice Float
+  buyingPrice  Float
+   supplier       Supplier    @relation(fields:[supplierId], references: [id])
+  supplierId      String   @db.ObjectId
+  reOrderPoint Int
+  location     String?
+  imageUrl     String?
+  weight       Float?
+  dimensions   String?
+  taxRate      Float
+  notes        String?
+   AddStockAdjustment      AddStockAdjustment[]
+  TransferStockAdjustment TransferStockAdjustment[]
+}
+
+model Category {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  item        Item[]
+}
+
+model Unit {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  title        String
+  abbreviation String
+  item         Item[]
+}
+
+model Brand {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  title String
+  item  Item[]
+}
+
+model Warehouse {
+  id                      String                    @id @default(auto()) @map("_id") @db.ObjectId
+  title                   String
+  location                String?
+  description             String?
+  warehouseType           String
+  AddStockAdjustment      AddStockAdjustment[]
+ outgoingTransfers       TransferStockAdjustment[] @relation("OutgoingWarehouse")
+  incomingTransfers       TransferStockAdjustment[] @relation("ReceivingWarehouse")
+}
+
+model AddStockAdjustment {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  addStockQty     Int
+  referenceNumber Int
+  warehouse       Warehouse @relation(fields: [warehouseId], references: [id])
+  warehouseId     String    @db.ObjectId
+  notes           String?
+   item         Item @relation(fields: [itemId], references: [id])
+  itemId      String    @db.ObjectId
+}
+
+model TransferStockAdjustment {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  transferStockQty  Int
+  notes             String?
+   // Warehouse sending the stock
+  warehouse         Warehouse @relation("OutgoingWarehouse", fields: [warehouseId], references: [id])
+  warehouseId       String    @db.ObjectId
+
+  // Warehouse receiving the stock
+  receivingBranch   Warehouse @relation("ReceivingWarehouse", fields: [receivingBranchId], references: [id])
+  receivingBranchId String    @db.ObjectId
+
+    item         Item @relation(fields: [itemId], references: [id])
+  itemId      String    @db.ObjectId
+}
+
+model Supplier{
+  id String    @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  phone String?
+  email String?
+  address String?
+  contactPerson String?
+  supplierCode String @unique
+  paymentTerms String?
+  taxID String?
+  notes String?
+    item         Item[]
+}
